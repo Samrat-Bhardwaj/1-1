@@ -121,6 +121,94 @@ public class StringType {
         return ans;
     }
 
+    // leet 1092 ======================================================
+
+    public String rec_scs(String str1, String str2, int n, int m){
+        if(n==0){
+            return str2.substring(0,m);
+        }
+        if(m==0){
+            return str1.substring(0,n);
+        }
+        
+        if(str1.charAt(n-1)==str2.charAt(m-1)){
+            return rec_scs(str1,str2,n-1,m-1) + str1.charAt(n-1);
+        } else {
+            String ans1=rec_scs(str1,str2,n-1,m);
+            String ans2=rec_scs(str1,str2,n,m-1);
+            
+            if(ans1.length()<ans2.length()){
+                return ans1+str1.charAt(n-1);
+            } else {
+                return ans2+str2.charAt(m-1);
+            }
+        }
+    }
+
+    public static String tab_lcs(String text1, String text2, int N, int M){
+        int[][] dp=new int[N+1][M+1];
+        String[][] sdp=new String[N+1][M+1];
+
+        for(int n=0; n<=N; n++){
+            for(int m=0; m<=M; m++){
+                if(n==0 || m==0){
+                    dp[n][m]=0;
+                    sdp[n][m]="";
+                    continue;
+                }
+        
+                //if(dp[n][m]!=-1) return dp[n][m];
+        
+                if(text1.charAt(n-1)==text2.charAt(m-1)){
+                    dp[n][m]=dp[n-1][m-1]+1;//memo_lcs(text1, text2, n-1, m-1, dp) + 1;
+                    sdp[n][m]=sdp[n-1][m-1]+text1.charAt(n-1);
+                } else {
+                    if(dp[n-1][m]>dp[n][m-1]){
+                        dp[n][m]=dp[n-1][m];
+                        sdp[n][m]=sdp[n-1][m];
+                    } else {
+                        dp[n][m]=dp[n][m-1];
+                        sdp[n][m]=sdp[n][m-1];
+                    }
+                    // dp[n][m]=Math.max(dp[n-1][m],dp[n][m-1]);//Math.max(memo_lcs(text1,text2,n-1,m,dp), memo_lcs(text1, text2, n, m-1, dp));
+                }
+            }
+        }
+        
+        return sdp[N][M];
+    }
+
+    public String shortestCommonSupersequence(String str1, String str2) {
+        String lcs=tab_lcs(str1,str2,str1.length(),str2.length());
+        
+        int i=0; int j=0;
+        int k=0;
+        
+        String ans="";
+        
+        while(k<lcs.length()){
+            while(str1.charAt(i)!=lcs.charAt(k)){
+                ans+=str1.charAt(i);
+                i++;
+            }
+            
+            while(str2.charAt(j)!=lcs.charAt(k)){
+                ans+=str2.charAt(j);
+                j++;
+            }
+            
+            ans+=lcs.charAt(k);
+            i++;
+            j++;
+            k++;
+        }
+        
+        ans+=str1.substring(i);
+        ans+=str2.substring(j);
+        
+        return ans;
+    }
+
     // https://www.geeksforgeeks.org/maximum-number-of-uncrossed-lines-between-two-given-arrays/
 
     // solve
@@ -230,5 +318,96 @@ public class StringType {
         String s2="aebfal";
 
         System.out.println(longestCommonSubsequence(s1,s2));
+    }
+
+    // subsequence of type a^i,b^j,c^k
+
+    public int count_subs(String str){
+        int eaa=0;
+        int eab=0;
+        int eac=0;
+
+        for(int i=0; i<str.length(); i++){
+            if(str.charAt(i)=='a'){
+                eaa=2*eaa + 1;
+            } else if(str.charAt(i)=='b'){
+                eab = 2*eab + eaa;
+            } else {
+                eac = 2*eac + eab;
+            }
+        }
+
+        return eac;
+    }
+
+    // wildcard matching ================================================================ 
+
+    // tabulate this
+
+    public int MatchStrings(String s, String p,int n, int m,int[][] dp){
+        if(n==0 || m==0){
+            if(n==0 && m==0){
+                return dp[n][m]=1;
+            } else if(m==1 && p.charAt(m-1)=='*'){
+                return dp[n][m]=1;
+            } else {
+                return dp[n][m]=0;
+            }
+        }
+        
+        if(dp[n][m]!=-1) return dp[n][m];
+        
+        if(p.charAt(m-1)=='?'){
+            return dp[n][m]=MatchStrings(s,p,n-1,m-1,dp);
+        } else if(p.charAt(m-1)=='*'){
+            int ans1=MatchStrings(s,p,n-1,m,dp);
+            int ans2=MatchStrings(s,p,n,m-1,dp);
+            
+            if(ans1==1 || ans2==1){
+                return dp[n][m]=1;
+            } else {
+                return dp[n][m]=0;
+            }
+        } else if(s.charAt(n-1)==p.charAt(m-1)){
+            return dp[n][m]=MatchStrings(s,p,n-1,m-1,dp);
+        } else {
+            return dp[n][m]=0;
+        }
+    }
+    
+    public boolean isMatch(String s, String p) {
+        StringBuilder sb=new StringBuilder();
+        if(p.length()==0){
+            return s.length()==0;
+        }
+        
+        int i=1;
+        sb.append(p.charAt(0));
+        
+        while(i<p.length()){
+            while(i<p.length() && p.charAt(i)=='*' && p.charAt(i-1)==p.charAt(i)){
+                i++;
+            }
+            
+            if(i<p.length())
+                sb.append(p.charAt(i));
+            
+            i++;
+        }
+        
+        p=sb.toString();
+        
+        int n=s.length();
+        int m=p.length();
+        
+        int[][] dp=new int[n+1][m+1];
+        
+        for(int[] d:dp){
+            Arrays.fill(d,-1);
+        }
+        
+        int ans=MatchStrings(s,p,n,m,dp);
+        
+        return ans==1;
     }
 }
