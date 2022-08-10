@@ -1,0 +1,43 @@
+I am at vertex 0
+Moving from 0 to 1
+I am at vertex 1
+Moving from 1 to 2
+I am at vertex 2
+Moving from 2 to 3
+I am at vertex 3
+Removing from the stack 3
+Removing from the stack 2
+Removing from the stack 1
+Removing from the stack 0
+I am at vertex 4
+Moving from 4 to 6
+I am at vertex 6
+Moving from 6 to 7
+I am at vertex 7
+Removing from the stack 7
+Removing from the stack 6
+Moving from 4 to 5
+I am at vertex 5
+Removing from the stack 5
+Removing from the stack 4
+============================== BFS ================================ 
+I am on level 0 and vertices on this level are following 
+0 is removed 
+===== 1 is added on level 1
+===== 2 is added on level 1
+I am on level 1 and vertices on this level are following 
+1 is removed 
+===== 3 is added on level 2
+2 is removed 
+I am on level 2 and vertices on this level are following 
+3 is removed 
+===== 4 is added on level 3
+I am on level 3 and vertices on this level are following 
+4 is removed 
+===== 6 is added on level 4
+===== 7 is added on level 4
+===== 5 is added on level 4
+I am on level 4 and vertices on this level are following 
+6 is removed 
+7 is removed 
+5 is removed 
