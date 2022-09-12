@@ -377,7 +377,7 @@ bool hasCycle(ListNode *head) {
     }
 
 // leetcode 142 ==================================================== 
-
+// floyd cycle method
 ListNode *detectCycle(ListNode *head) {
     if(head==nullptr || head->next==nullptr){
         return nullptr;
@@ -426,6 +426,119 @@ ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
     return ans;
 }
 
+// leetcode 83 ====================
+
+ListNode* deleteDuplicates(ListNode* head) {
+        if(head==nullptr || head->next==nullptr){
+            return head;
+        }
+        
+        ListNode* curr=head;
+     
+        while(curr && curr->next){
+            if(curr->val==curr->next->val){
+                ListNode* currKaNext=curr->next;
+                curr->next=nullptr;
+                curr->next=currKaNext->next;
+                
+                currKaNext->next=nullptr; // not neccessory
+            } 
+            if(curr->next && curr->val!=curr->next->val){
+                curr=curr->next;
+            }
+        }
+        
+        return head;
+    }
+
+
+// leetcode 82 ========================================== 
+ListNode* deleteDuplicates(ListNode* head) {
+    if(head==nullptr || head->next==nullptr){
+        return head;
+    }
+
+    ListNode* dummy=
+}
+
+// leetcode 138 ======================================================================
+Node* extractList(Node* head){
+    Node* dummy=new ListNode(0);
+    Node* itr=dummy;
+    Node* curr=head;
+
+    while(curr){
+        itr->next=curr->next;
+        curr->next=curr->next->next;
+
+        itr=itr->next;
+        curr=curr->next;
+    }
+
+    return dummy->next;
+}
+
+Node* copyRandomList(Node* head) {
+    
+}
+
+// leetcode 25 ================================================== 
+int length(ListNode* head){
+        ListNode* temp=head;
+
+        int ans=0;
+        while(temp){
+            ans++;
+            temp=temp->next;
+        }
+
+        return ans;
+    }
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        if(head==nullptr || head->next==nullptr || k<=1){
+            return head;
+        }
+
+        int l=length(head);
+
+        if(l<k){
+            return head;
+        }
+
+        ListNode* curr=head;
+
+        ListNode* oh=nullptr;
+        ListNode* ot=nullptr;
+
+        int K=k;
+
+        while(curr && l>=k){
+            while(K-- > 0){
+                ListNode* currKanext=curr->next;
+                curr->next=nullptr;
+
+                addFirst(curr);
+                curr=currKanext;
+            }
+
+            if(oh==nullptr){
+                oh=thead2;
+                ot=ttail2;
+            } else {
+                ot->next=thead2;
+                ot=ttail2;
+            }
+
+            thead2=nullptr;
+            ttail2=nullptr;
+
+            l-=k;
+            K=k;
+        }
+
+        ot->next=curr;
+        return oh;
+    }
 
 int main(){
 
