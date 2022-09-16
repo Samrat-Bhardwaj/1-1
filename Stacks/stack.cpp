@@ -348,6 +348,30 @@ vector<int> asteroidCollision(vector<int>& asteroids) {
     for(int )        
 }
 
+
+// leet 901 ===============================================
+class StockSpanner {
+public:
+    stack<pair<int,int>> st; // price,day
+    int day=0;
+    StockSpanner() {
+        st.push({-1,-1});    
+    }
+    
+    int next(int price) {
+        while(st.top().second!=-1 && st.top().first <= price){
+            st.pop();
+        }
+        
+        int span = day - st.top().second; 
+        st.push({price,day});
+        day++;
+        
+        return span;
+    }
+};
+
+
 int main(){
 
 }
