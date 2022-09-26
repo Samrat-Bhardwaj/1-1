@@ -283,6 +283,269 @@ public:
         return rv;
     }
 };
+
+// LRU Cache (leet 146) =========================================================================== 
+
+class LRUCache {
+public:
+    class Node {
+        public:
+            int key;
+            int val;
+            Node* prev;
+            Node* next;
+        
+            Node(int key, int val){
+                this->key=key;
+                this->val=val;
+                prev=nullptr;
+                next=nullptr;
+            }
+    };
+    
+    Node* head;
+    Node* tail;
+    int size;
+    
+    void addLast(Node* node){
+        if(head==NULL){
+            head=tail=node;
+        } else {
+            node->prev=tail;
+            tail->next=node;
+            
+            tail=node;
+        }
+        
+        size++;
+    }
+    
+    Node* removeHead(){
+        Node* headKaNext=head->next;
+        
+        head->next=nullptr;
+        
+        if(headKaNext!=nullptr)
+            headKaNext->prev=nullptr;
+        
+        Node* tr=head;
+        head=headKaNext;
+        
+        size--;
+        return tr;
+    }
+    
+    void removeNode(Node* node){
+        if(node==head){
+            removeHead();
+        } else if(node==tail){
+            Node* tailKaPrev=tail->prev;
+            tail->prev=nullptr;
+            
+            tail=tailKaPrev;
+            tail->next=nullptr;
+            size--;
+        } else {
+            Node* nodeKaPrev=node->prev;
+            Node* nodeKaNext=node->next;
+            
+            nodeKaPrev->next=nodeKaNext;
+            nodeKaNext->prev=nodeKaPrev;
+            size--;
+        }
+    }
+    
+    map<int,Node*> map; // key vs node (val)
+    int maxSize;
+    
+    LRUCache(int capacity) {
+        head=nullptr;
+        tail=nullptr;
+        size=0;
+        maxSize=capacity;
+    }
+    
+    void makeRecent(Node* node){
+        if(tail==node) return;
+        
+        removeNode(node);
+        addLast(node);
+    }
+    
+    int get(int key) {
+        if(map.find(key)==map.end()) return -1;
+        
+        Node* node=map[key];
+        makeRecent(node);
+        return node->val;
+    }
+    
+    void put(int key, int value) {
+        if(map.find(key)==map.end()){
+            
+            if(size==maxSize){
+                Node* node=removeHead();
+                map.erase(node->key);
+            }
+            
+            Node* node=new Node(key,value);
+            addLast(node);
+            map.insert({key,node});
+        } else {
+            Node* node=map[key];
+            node->val=value;
+            makeRecent(node);
+        }
+    }
+};
+
+// Insert,delete,getRandom O(1) leetcode 380 ==========================================
+
+class RandomizedSet {
+public:
+    vector<int> arr;
+    unordered_map<int,int> map; // key vs index
+    RandomizedSet() {
+        
+    }
+    
+    bool insert(int val) {
+        if(map.find(val)==map.end()){
+            map[val]=arr.size();
+            arr.push_back(val);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    bool remove(int val) {
+        if(map.find(val)==map.end()){
+            return false;
+        } else {
+            int idx=map[val];
+            
+            int last=arr.back();
+            
+            arr[idx]=last;
+            map[last]=idx;
+            
+            arr.pop_back();
+            map.erase(val);
+            
+            return true;
+        }
+    }
+    
+    int getRandom() {
+        return arr[rand() % arr.size()];
+    }
+};
+
+// leet 1488 ================================================== 
+vector<int> avoidFlood(vector<int>& rains) {
+    unordered_map<int,int> filled;
+    set<int> empty;
+    
+    vector<int> ans(rains.size(),-1);
+    
+    for(int i=0; i<rains.size(); i++){
+        if(rains[i]==0){
+            empty.insert(i);
+            ans[i]=1;
+        } else {
+            int lake=rains[i];
+            if(filled.find(lake)!=filled.end()){
+                int day=filled[lake]; // day it was rained on lake
+                
+                auto zidx=empty.lower_bound(day);
+                    
+                if(zidx==empty.end()){
+                    return {};
+                }
+                
+                int ld=*zidx;
+                
+                ans[ld]=lake;
+                empty.erase(ld);
+                filled[lake]=i;
+            } else {
+                filled.insert({lake,i});
+            }
+            ans[i]=-1;
+        }
+    }
+    
+    return ans;
+}
+
+// leet 1146 ======================================================
+
+class SnapshotArray {
+public:
+    int snap_id;
+    vector<map<int,int>> arr;
+    
+    SnapshotArray(int length) {
+        arr.resize(length);
+        snap_id=0;
+    }
+    
+    void set(int index, int val) {
+        arr[index][snap_id]=val;
+    }
+    
+    int snap() {
+        return snap_id++;
+    }
+    
+    int get(int index, int snap_id) {
+        auto itr=arr[index].upper_bound(snap_id);
+        
+        if(itr==arr[index].begin()) return 0;
+        // itr--; 
+        return prev(itr)->second;
+    }
+};
+
+// subarray sum problems  =============================================================================================================
+
+// https://practice.geeksforgeeks.org/problems/subarray-with-0-sum-1587115621/1
+bool subArrayExists(int arr[], int n){
+    unordered_map<int,int> m;
+    
+    m[0]=-1;
+    int csum=0;
+    
+    for(int i=0; i<n; i++){
+        csum+=arr[i];
+        
+        if(m.find(csum)!=m.end()) return true;
+        m[csum]=i;
+    }
+    
+    return false;
+}
+
+// https://leetcode.com/problems/subarray-sum-equals-k/
+
+// leet 1642 ================================================================== 
+
+int furthestBuilding(vector<int>& heights, int bricks, int ladders) {
+    priority_queue<int,vector<int>,greater<int>> pq;
+    for(int i=1; i<heights.size(); i++){
+        int diff=heights[i]-heights[i-1];
+        if(diff<=0) continue;
+        pq.push(diff);
+        if(pq.size()>ladders){
+            cout<<pq.top()<<" ";
+            bricks-=pq.top(); pq.pop();
+        }
+        if(bricks==0) return i;
+        if(bricks<0) return i-1;
+    }
+    return heights.size()-1;
+}
 int main(){
 
 }
