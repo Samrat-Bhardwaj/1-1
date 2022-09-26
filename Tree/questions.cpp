@@ -223,3 +223,338 @@ vector<int> heightDia(TreeNode* root){
 
 // BFS / Level-order traversal ============================================================
 
+
+// left view of a tree ================================================
+
+struct Node
+{
+    int data;
+    struct Node* left;
+    struct Node* right;
+    
+    Node(int x){
+        data = x;
+        left = right = NULL;
+    }
+};
+
+vector<int> leftView(Node *root) {
+    queue<Node*> q;
+
+    que.push(root);
+
+    int level=0;
+    vector<int> ans;
+
+    while(que.size()){
+        int size=que.size();
+
+        while(size--){
+            Node* top=que.pop();
+
+            if(level==ans.size()){
+                que.add(top->data);
+            }
+
+            if(top->left){
+                que.push(top->left);
+            }
+
+            if(top->right){
+                que.push(top->right);
+            }
+        }
+        level++;
+    }
+
+    return ans;
+}
+
+void rec_left_view(Node* root, vector<int>& ans, int level){
+    if(root==nullptr) return;
+
+    if(level==ans.size()){
+        ans.push_back(root->data);
+    }
+
+    rec_left_view(root->left,ans,level+1);
+    rec_left_view(root->right,ans,level+1);
+}
+
+vector<int> leftView(Node *root) {
+    vector<int> ans;
+
+    rec_left_view(root,ans,0);
+    return ans;
+}
+
+
+// https://practice.geeksforgeeks.org/problems/right-view-of-binary-tree/1
+
+void rec_right_view(Node* root, vector<int>& ans, int level){
+    if(root==nullptr) return;
+
+    if(level==ans.size()){
+        ans.push_back(root->data);
+    }
+
+    rec_right_view(root->right,ans,level+1);
+    rec_right_view(root->left,ans,level+1);
+}
+
+vector<int> rightView(Node *root){
+    vector<int> ans;
+    rec_right_view(root,ans,0);
+
+    return ans;
+}
+
+// vertical order ==========================================================
+
+void getWidth(TreeNode* root,vector<int>& minMax, int vl){
+    if(root==nullptr) return;
+
+    minMax[0]=min(vl,minMax[0]);
+    minMax[1]=max(vl,minMax[1]);
+
+    getWidth(root->left,minMax,vl-1);
+    getWidth(root->right,minMax,vl+1);
+}
+
+vector<vector<int>> verticalOrder(TreeNode* root){
+    vector<int> minMax(2,0); // { min_vertical_level, max_vertical_level }
+
+    getWidth(root,minMax,0);
+
+    int width=minMax[1] - minMax[0] + 1;
+
+    int shift=-minMax[0];
+
+    vector<vector<int>> ans(width);
+
+    queue<pair<TreeNode*,int>> que; // node vs vertical level
+    que.push({root,0});
+
+    while(que.size()){
+        int s=que.size();
+
+        while(s--){
+            pair<TreeNode*,int> top=que.front(); que.pop();
+
+            TreeNode* t=top.first;
+            int vl=top.second;
+
+            int idx = vl + shift;
+            ans[idx].push_back(t->val);
+
+            if(t->left){
+                que.push({t->left,vl-1});
+            }
+            if(t->right){
+                que.push({t->right,vl+1});
+            }
+        }
+    }
+}
+
+// https://practice.geeksforgeeks.org/problems/print-a-binary-tree-in-vertical-order/1
+
+// vertical sum 
+// https://practice.geeksforgeeks.org/problems/vertical-sum/1
+
+// bottom view 
+// https://practice.geeksforgeeks.org/problems/bottom-view-of-binary-tree/1
+
+// top view sum
+// https://www.geeksforgeeks.org/sum-of-nodes-in-top-view-of-binary-tree/
+
+// diagonal order  ============================================================== 
+
+// try with level order (may not work)
+void diagonalWidth(Node* root, int& min_vl, int vl){
+    if(!root) return;
+    
+    min_vl=max(min_vl,vl);
+    
+    diagonalWidth(root->left,min_vl,vl+1);
+    diagonalWidth(root->right,min_vl,vl);
+}
+
+void getDiagonalView(Node* root,vector<vector<int>>& ans, int vl){
+    if(!root) return;
+    
+    ans[vl].push_back(root->data);
+    
+    getDiagonalView(root->left,ans,vl+1);
+    getDiagonalView(root->right,ans,vl);
+}
+
+vector<int> diagonal(Node *root)
+{
+    int min_vl=0;
+    diagonalWidth(root,min_vl,0);    
+    
+    vector<vector<int>> ans(min_vl+1);
+    
+    getDiagonalView(root,ans,0);
+    
+    vector<int> res;
+    for(int i=0; i<=min_vl; i++){
+        for(int e:ans[i]){
+            res.push_back(e);
+        }
+    }
+    
+    return res;
+}
+
+// all solutions (predecessor, successor, ceil, floor)
+
+class allPair {
+    public:
+    Node* prev;
+    Node* pred; 
+    Node* succ;
+
+    int ceil;
+    int floor;
+};
+
+void findAllSolutions(Node* root, int data, allPair* ans){
+    if(!root) return;
+
+    if(root->data < data){ // maximum of all values smaller than data
+        ans->floor=max(ans->floor,root->data);
+    } 
+
+    if(root->data > data){ // minimum of all values greater than data
+        ans->ceil=min(ans->ceil,root->data);
+    }
+
+    findAllSolutions(root->left,data,ans);
+
+    if(root->data==data){  // predecessor
+        ans->pred = ans->prev;
+    }
+
+    if(ans->prev!=nullptr && ans->prev->data == data){ // successor 
+        ans->succ = root;
+    }
+
+    ans->prev=root;
+    findAllSolutions(root->right,data,ans);
+}
+
+
+// Morris traversal (O(1) space traversal) ==========================================================
+
+Node* rightMost(Node* root, Node* curr){
+    while(root->right!=nullptr && root->right!=curr){
+        root=root->right;
+    }
+
+    return root;
+}
+
+vector<Node*> morrisInorderTraversal(Node* root){
+    Node* curr=root;
+    vector<Node*> inorder;
+
+    while(curr!=nullptr){
+        Node* leftNode=curr->left;
+
+        if(leftNode==nullptr){
+            inorder.push_back(curr);
+            curr=curr->right;
+        } else {
+            Node* rm=rightMost(leftNode,curr);
+
+            if(rm->right==nullptr){ // thread creation
+                rm->right=curr;
+                curr=leftNode;
+            } else { // rm->right == curr (thread break)
+                rm->right=nullptr;
+                inorder.push_back(curr);
+                curr=curr->right;
+            }
+        }
+    }
+
+    return inorder;
+}
+
+
+vector<Node*> morrisPreTraversal(Node* root){
+    Node* curr=root;
+    vector<Node*> preorder;
+
+    while(curr!=nullptr){
+        Node* leftNode=curr->left;
+
+        if(leftNode==nullptr){
+            preorder.push_back(curr);
+            curr=curr->right;
+        } else {
+            Node* rm=rightMost(leftNode,curr);
+
+            if(rm->right==nullptr){ // thread creation
+                rm->right=curr;
+                preorder.push_back(curr);
+                curr=leftNode;
+            } else { // rm->right == curr (thread break)
+                rm->right=nullptr;
+                
+                curr=curr->right;
+            }
+        }
+    }
+
+    return preorder;
+}
+
+// iterative post, in, pre using stack ===========================================
+
+class tPair {
+    public: 
+    Node* node;
+    bool selfDone;
+    bool leftDone;
+    bool rightDone;
+
+    tpair(Node* node, bool selfDone, bool leftDone, bool rightDone){
+        this->node=node;
+        this->selfDone=selfDone;
+        this->leftDone=leftDone;
+        this->rightDone=rightDone;
+    }
+};
+
+void allTraversals(Node* root){
+    Stack<tPair*> st;
+
+    vector<Node*> preorder;
+    vector<Node*> inorder;
+    vector<Node*> postorder;
+
+    tPair* base=new tPair(root,false,false,false);
+    st.push(base);
+
+    while(st.size()!=0){
+        tPair tp=st.top();
+
+        if(tp->selfDone==false){
+            preorder.push_back(tp->node);
+            tp->selfDone=true;
+        } else if(tp->leftDone==false){
+            tp->leftDone=true;
+            if(tp->node->left) st.push(new tPair(tp->node->left,false,false,false));
+        } else if(tp->rightDone==false){
+            inorder.push(tp->node);
+            tp->rightDone=true;
+            if(tp->node->right) st.push(new tPair(tp->node->right,false,false,false));
+        } else {
+            postorder.push_back(tp->node);
+            st.pop();
+        }
+    }
+}
