@@ -146,3 +146,56 @@ ArrayList<TreeNode>[]
         
     }
 }
+
+
+// 22nd october ==================================================================================
+// leet 106 ===============================================================================
+
+public TreeNode build(int[] inorder, int insi, int inei, int[] postorder, int posi, int poei){
+    if(insi > inei) return null;
+    
+    TreeNode root=new TreeNode(postorder[poei]);
+    
+    int idx=insi;
+    while(inorder[idx]!=root.val){
+        idx++;
+    }
+    
+    int count=idx-insi; // left elements count;
+    
+    root.left=build(inorder,insi,idx-1,postorder,posi,posi+count-1);
+    root.right=build(inorder,idx+1,inei,postorder,posi+count,poei-1);
+    
+    return root;
+}
+
+public TreeNode buildTree(int[] inorder, int[] postorder) {
+    int n=inorder.length;
+    
+    return build(inorder,0,n-1,postorder,0,n-1);
+}
+
+// leetcode 889 ================================================================== 
+public TreeNode build(int[] preorder, int prsi, int prei, int[] postorder, int posi, int poei){
+    if(prsi > prei) return null;
+    if(prsi == prei) return new TreeNode(preorder[prsi]);
+    
+    TreeNode root=new TreeNode(preorder[prsi]);
+    
+    int idx=posi;
+    while(postorder[idx] != preorder[prsi+1]){ // finding left subtree root
+        idx++;
+    }
+    
+    int count= idx - posi + 1;
+    
+    root.left=build(preorder,prsi+1,prsi+count,postorder,posi,idx);
+    root.right=build(preorder,prsi+count+1,prei,postorder,idx+1,poei-1);
+    
+    return root;
+}
+public TreeNode constructFromPrePost(int[] preorder, int[] postorder) {
+    int n=preorder.length;
+    
+    return build(preorder,0,n-1,postorder,0,n-1);
+}

@@ -176,3 +176,7 @@ bstPair* check(TreeNode* root){
 bool isValidBST(TreeNode* root) {
     return check(root)->isBST;
 }
+
+// leetcode 1373 =============================================================== 
+
+// leet 109 =================================== 
