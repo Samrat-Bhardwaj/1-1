@@ -71,3 +71,36 @@ public TreeNode trimBST(TreeNode root, int low, int high) {
     
     return root;
 }
+
+// leet 109 ==============================
+public ListNode getMid(ListNode head,ListNode tail){
+    ListNode slow=head;
+    ListNode fast=head;
+    
+    while(fast!=tail && fast.next!=tail){
+        slow=slow.next;
+        fast=fast.next.next;
+    }
+    
+    return slow;
+}
+
+public TreeNode makeBST(ListNode head,ListNode tail){ // tail = next point of actual tail 
+    if(head==tail){
+        return null;
+    }
+    
+    ListNode mid=getMid(head,tail);
+    
+    TreeNode root=new TreeNode(mid.val);
+    
+    root.left=makeBST(head,mid);
+    root.right=makeBST(mid.next,tail);
+    
+    return root;
+}
+
+public TreeNode sortedListToBST(ListNode head) {
+    if(head==null) return null;
+    return makeBST(head,null);
+}

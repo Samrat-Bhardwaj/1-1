@@ -585,3 +585,72 @@ TreeNode* buildTree(vector<int>& preorder, int prsi, int prei,vector<int>& inord
 TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
     return buildTree(preorder,0,preorder.size()-1,inorder,0,inorder.size()-1);
 }
+
+
+// https://practice.geeksforgeeks.org/problems/maximum-path-sum/1 ======================================= 
+
+// {left to node max sum, max ans}
+vector<int> rec(Node* root){
+    if(!root){
+        return {(int)(-1e8),(int)(-1e8)};
+    }
+    
+    if(root->left==nullptr && root->right==nullptr){
+        return {root->data,(int)(-1e8)};
+    }
+    
+    vector<int> lans=rec(root->left);
+    vector<int> rans=rec(root->right);
+    
+    int lsum=lans[0]; // leaf to node max sum
+    int rsum=rans[0]; // leaf to node max sum
+    
+    int lmax=lans[1];
+    int rmax=rans[1];
+    
+    vector<int> myAns(2,0);
+    
+    myAns[0]=max(lsum,rsum)+root->data;
+    myAns[1]=max(lmax,max(rmax,lsum+rsum+root->data));
+    
+    return myAns;
+}
+int maxPathSum(Node* root)
+{
+    vector<int> ans=rec(root);
+    if(root->left==nullptr || root->right==nullptr) return max(ans[0],ans[1]);
+    return ans[1];
+}
+
+// leetcode 124 ========================================================================= 
+
+//{max path sum, max ans}
+vector<int> solve(TreeNode* root){
+    if(!root) return {(int)(-1e8),(int)(-1e8)};
+    
+    vector<int> lans=solve(root->left);
+    vector<int> rans=solve(root->right);
+    
+    int lps=lans[0]; // left max path sum
+    int rps=rans[0]; // right max path sum
+    
+    int lam=lans[1]; // left subtree max ans
+    int ram=rans[1]; // right subtree max ans
+    
+    int mps=max(lps+root->val,max(rps+root->val,root->val)); // my max path sum 
+    // three scenarios => lpath + root.val
+    // rpath + root.val
+    // or we can start path from root.val
+    
+    int mam=max(mps,max(lps+rps+root->val,max(lam,ram)));
+    // for max ans => all the above 3 scenarios 
+    // lpath + rpath + root.val 
+    // l max ans 
+    // r max ans
+    
+    return {mps,mam};
+}
+
+int maxPathSum(TreeNode* root) {
+    return solve(root)[1];
+}
