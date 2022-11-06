@@ -1,0 +1,9 @@
+This is level 0  ->     1
+This is level 1  ->     2
+3
+This is level 2  ->     4
+5
+There is a cycle in graph
+This is level 3  ->     0
+6
+This is level 4  ->     There is a cycle in graph
